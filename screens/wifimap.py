@@ -5,6 +5,7 @@ En macOS 14.4+ el binario `airport` fue removido, asi que dependemos de
 locales cacheadas. Para escaneo activo se requiere `wdutil` con sudo.
 """
 import json
+import logging
 import re
 import subprocess
 from pathlib import Path
@@ -20,8 +21,10 @@ from textual.containers import VerticalScroll
 
 from widgets.shared import is_view_active
 
+logger = logging.getLogger(__name__)
 AIRPORT = Path("/System/Library/PrivateFrameworks/Apple80211.framework"
                "/Versions/Current/Resources/airport")
+_last_scan_error = ""
 
 
 def _signal_bar(rssi: int, w: int = 16) -> Text:
@@ -67,30 +70,59 @@ def _security_label(raw: str) -> str:
 
 def _scan_airport() -> list[dict]:
     """Legacy airport binary — solo macOS < 14.4."""
+    global _last_scan_error
     if not AIRPORT.exists():
         return []
     try:
         r = subprocess.run([str(AIRPORT), "-s"], capture_output=True, text=True, timeout=10)
         if r.returncode != 0:
+            _last_scan_error = (r.stderr or "").strip() or f"airport fallo con codigo {r.returncode}"
+            logger.warning("airport scan failed: %s", _last_scan_error)
             return []
         networks = []
-        for line in r.stdout.strip().splitlines()[1:]:
-            parts = line.split()
-            if len(parts) < 3:
-                continue
+        lines = r.stdout.splitlines()
+        if not lines:
+            return []
+        header = lines[0]
+        bssid_at = header.find("BSSID")
+        rssi_at = header.find("RSSI")
+        channel_at = header.find("CHANNEL")
+        ht_at = header.find("HT")
+        cc_at = header.find("CC")
+        security_at = header.find("SECURITY")
+        if min(bssid_at, rssi_at, channel_at, security_at) < 0:
+            _last_scan_error = "formato inesperado de airport -s"
+            logger.warning(_last_scan_error)
+            return []
+        for line in lines[1:]:
             try:
-                rssi = int(parts[2])
+                ssid = line[:bssid_at].strip()
+                bssid = line[bssid_at:rssi_at].strip()
+                rssi = int(line[rssi_at:channel_at].strip())
+                channel = line[channel_at:ht_at].strip() if ht_at > channel_at else "?"
+                security = line[security_at:].strip() if security_at >= 0 else "?"
                 networks.append({
-                    "ssid":     parts[0],
-                    "bssid":    parts[1],
+                    "ssid":     ssid,
+                    "bssid":    bssid,
                     "rssi":     rssi,
-                    "channel":  parts[3] if len(parts) > 3 else "?",
-                    "security": " ".join(parts[6:]) if len(parts) > 6 else "?",
+                    "channel":  channel or "?",
+                    "security": security or "?",
                 })
             except (ValueError, IndexError):
+                logger.warning("No se pudo parsear red WiFi: %s", line)
                 continue
         return sorted(networks, key=lambda x: x["rssi"], reverse=True)
-    except (FileNotFoundError, subprocess.TimeoutExpired):
+    except FileNotFoundError:
+        _last_scan_error = "comando no disponible: airport"
+        logger.warning(_last_scan_error)
+        return []
+    except subprocess.TimeoutExpired:
+        _last_scan_error = "timeout escaneando WiFi con airport"
+        logger.warning(_last_scan_error)
+        return []
+    except PermissionError:
+        _last_scan_error = "sin permisos para escanear WiFi con airport"
+        logger.warning(_last_scan_error)
         return []
 
 
@@ -99,15 +131,32 @@ def _scan_system_profiler() -> tuple[list[dict], dict]:
 
     Returns (networks, current_info).
     """
+    global _last_scan_error
     try:
         r = subprocess.run(
             ["system_profiler", "-json", "SPAirPortDataType"],
             capture_output=True, text=True, timeout=15,
         )
         if r.returncode != 0:
+            _last_scan_error = (r.stderr or "").strip() or f"system_profiler fallo con codigo {r.returncode}"
+            logger.warning("system_profiler WiFi scan failed: %s", _last_scan_error)
             return [], {}
         data = json.loads(r.stdout)
-    except (FileNotFoundError, subprocess.TimeoutExpired, json.JSONDecodeError):
+    except FileNotFoundError:
+        _last_scan_error = "comando no disponible: system_profiler"
+        logger.warning(_last_scan_error)
+        return [], {}
+    except subprocess.TimeoutExpired:
+        _last_scan_error = "timeout escaneando WiFi con system_profiler"
+        logger.warning(_last_scan_error)
+        return [], {}
+    except json.JSONDecodeError:
+        _last_scan_error = "salida invalida de system_profiler"
+        logger.warning(_last_scan_error)
+        return [], {}
+    except PermissionError:
+        _last_scan_error = "sin permisos para escanear WiFi"
+        logger.warning(_last_scan_error)
         return [], {}
 
     interfaces = []
@@ -158,6 +207,8 @@ def _scan_system_profiler() -> tuple[list[dict], dict]:
 
 
 def build_renderable():
+    global _last_scan_error
+    _last_scan_error = ""
     networks = _scan_airport()
     current: dict = {}
 
@@ -167,6 +218,8 @@ def build_renderable():
     if not networks:
         msg = Text()
         msg.append("  No se pudo escanear redes WiFi.\n", "yellow")
+        if _last_scan_error:
+            msg.append(f"  {_last_scan_error}\n", "bold red")
         msg.append("  En macOS modernos puede requerir permiso de Localizacion.\n\n", "dim white")
         try:
             r = subprocess.run(
@@ -175,8 +228,18 @@ def build_renderable():
             )
             if r.stdout:
                 msg.append(r.stdout, "dim white")
+        except FileNotFoundError:
+            msg.append("  comando no disponible: networksetup", "dim red")
+            logger.warning("networksetup no disponible")
+        except subprocess.TimeoutExpired:
+            msg.append("  timeout consultando networksetup", "dim red")
+            logger.warning("timeout consultando networksetup")
+        except PermissionError:
+            msg.append("  sin permisos para consultar networksetup", "dim red")
+            logger.warning("sin permisos para consultar networksetup")
         except Exception:
             msg.append("  No se pudo obtener info de red.", "dim red")
+            logger.exception("No se pudo obtener info de red")
         return Panel(msg, title="[bold cyan] 📡  WifiMap [/]", border_style="cyan")
 
     cur_ssid = current.get("ssid", "") if current else ""
@@ -249,4 +312,4 @@ class WifiMapView(VerticalScroll):
         try:
             self.query_one("#wm_view", Static).update(rendered)
         except Exception:
-            pass
+            logger.exception("No se pudo actualizar WifiMap")
