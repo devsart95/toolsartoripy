@@ -1,4 +1,6 @@
 """PortScan — Puertos activos y conexiones del sistema."""
+import logging
+
 from rich.console import Group
 from rich.panel import Panel
 from rich.table import Table
@@ -8,7 +10,9 @@ from textual.widgets import Static
 from textual.app import ComposeResult
 from textual.containers import VerticalScroll
 
-from widgets.shared import is_view_active, net_connections
+from widgets.shared import is_view_active, net_connections, net_connections_error
+
+logger = logging.getLogger(__name__)
 
 _STATE_COLORS = {
     "LISTEN":      "bold green",
@@ -29,8 +33,12 @@ def build_renderable():
     conns = net_connections()
 
     if not conns:
+        detail = net_connections_error()
+        text = "  Sin conexiones detectadas."
+        if detail:
+            text = f"  {detail}"
         return Panel(
-            Text("  lsof no disponible o sin conexiones detectadas.", "yellow"),
+            Text(text, "yellow"),
             title="[bold red] 🔌  PortScan [/]", border_style="red",
         )
 
@@ -68,11 +76,14 @@ def build_renderable():
     summary.append("Otras: ", "dim white");          summary.append(str(len(other)), "white")
     summary.append("  ·  Total: ", "dim white");     summary.append(str(len(conns)), "bold white")
 
-    return Group(
+    panels = [
         Panel(summary, border_style="green", padding=(0, 1)),
         make_panel("En escucha", listen, "green"),
         make_panel("Establecidas", active, "cyan"),
-    )
+    ]
+    if other:
+        panels.append(make_panel("Otras conexiones", other, "yellow"))
+    return Group(*panels)
 
 
 class PortScanView(VerticalScroll):
@@ -95,4 +106,4 @@ class PortScanView(VerticalScroll):
         try:
             self.query_one("#ps_view", Static).update(build_renderable())
         except Exception:
-            pass
+            logger.exception("No se pudo actualizar PortScan")
