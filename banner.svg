@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 280" width="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0a"/>
+      <stop offset="50%" style="stop-color:#0d1a0d"/>
+      <stop offset="100%" style="stop-color:#050805"/>
+    </linearGradient>
+    <linearGradient id="glow1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00ff44;stop-opacity:0"/>
+      <stop offset="50%" style="stop-color:#00ff44;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#00ff44;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="glow2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00ff44;stop-opacity:0.08"/>
+      <stop offset="100%" style="stop-color:#00ff44;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00cc44"/>
+      <stop offset="50%" style="stop-color:#00ff88"/>
+      <stop offset="100%" style="stop-color:#00cc44"/>
+    </linearGradient>
+    <filter id="glitch">
+      <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="1" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <clipPath id="scanlines">
+      <rect x="0" y="0" width="800" height="280"/>
+    </clipPath>
+    <pattern id="scanline" width="800" height="4" patternUnits="userSpaceOnUse">
+      <rect width="800" height="2" fill="transparent"/>
+      <rect y="2" width="800" height="2" fill="#00ff44" opacity="0.03"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="280" fill="url(#bg)"/>
+  <rect width="800" height="280" fill="url(#glow2)"/>
+
+  <!-- Glow line top -->
+  <rect x="0" y="0" width="800" height="2" fill="url(#accent)" opacity="0.6"/>
+
+  <!-- Grid lines -->
+  <g stroke="#00ff44" stroke-width="0.3" opacity="0.08">
+    <line x1="0" y1="50" x2="800" y2="50"/>
+    <line x1="0" y1="100" x2="800" y2="100"/>
+    <line x1="0" y1="150" x2="800" y2="150"/>
+    <line x1="0" y1="200" x2="800" y2="200"/>
+    <line x1="0" y1="250" x2="800" y2="250"/>
+    <line x1="100" y1="0" x2="100" y2="280"/>
+    <line x1="200" y1="0" x2="200" y2="280"/>
+    <line x1="300" y1="0" x2="300" y2="280"/>
+    <line x1="400" y1="0" x2="400" y2="280"/>
+    <line x1="500" y1="0" x2="500" y2="280"/>
+    <line x1="600" y1="0" x2="600" y2="280"/>
+    <line x1="700" y1="0" x2="700" y2="280"/>
+  </g>
+
+  <!-- Decorative brackets -->
+  <text x="50" y="48" font-family="monospace" font-size="12" fill="#00ff44" opacity="0.3">[system] v1.0.0</text>
+  <text x="680" y="48" font-family="monospace" font-size="12" fill="#00ff44" opacity="0.3">macOS</text>
+
+  <!-- Top-left corner decorations -->
+  <path d="M30 30 L30 80" stroke="#00ff44" stroke-width="2" fill="none" opacity="0.4"/>
+  <path d="M30 30 L80 30" stroke="#00ff44" stroke-width="2" fill="none" opacity="0.4"/>
+  <path d="M770 30 L770 80" stroke="#00ff44" stroke-width="2" fill="none" opacity="0.4"/>
+  <path d="M770 30 L720 30" stroke="#00ff44" stroke-width="2" fill="none" opacity="0.4"/>
+
+  <!-- Scanlines overlay -->
+  <rect width="800" height="280" fill="url(#scanline)" clip-path="url(#scanlines)"/>
+
+  <!-- Main Title - Glitch effect layers -->
+  <text x="400" y="115" font-family="monospace" font-size="58" font-weight="900" fill="#ff0044" text-anchor="middle" opacity="0.3" filter="url(#glitch)" transform="translate(-3,0)">⚡ toolsartoripy</text>
+  <text x="400" y="115" font-family="monospace" font-size="58" font-weight="900" fill="#0044ff" text-anchor="middle" opacity="0.3" filter="url(#glitch)" transform="translate(3,0)">⚡ toolsartoripy</text>
+  <text x="400" y="115" font-family="monospace" font-size="58" font-weight="900" fill="#00ff44" text-anchor="middle" opacity="0.9">⚡ toolsartoripy</text>
+
+  <!-- Underline glow -->
+  <rect x="200" y="130" width="400" height="3" rx="1.5" fill="url(#accent)" opacity="0.7"/>
+
+  <!-- Subtitle -->
+  <text x="400" y="155" font-family="monospace" font-size="14" fill="#44cc44" text-anchor="middle" opacity="0.8">10 TUI tools for macOS · Python + Textual + Rich</text>
+
+  <!-- Terminal prompt -->
+  <text x="400" y="180" font-family="monospace" font-size="11" fill="#22aa22" text-anchor="middle" opacity="0.5">$ python app.py —  ⚡ SysGlitch  🔌 PortScan  🎯 GitRadar  🐳 DockerGlitch</text>
+
+  <!-- Bottom corner decorations -->
+  <path d="M30 250 L30 200" stroke="#00ff44" stroke-width="2" fill="none" opacity="0.4"/>
+  <path d="M30 250 L80 250" stroke="#00ff44" stroke-width="2" fill="none" opacity="0.4"/>
+  <path d="M770 250 L770 200" stroke="#00ff44" stroke-width="2" fill="none" opacity="0.4"/>
+  <path d="M770 250 L720 250" stroke="#00ff44" stroke-width="2" fill="none" opacity="0.4"/>
+
+  <!-- Bottom info bar -->
+  <rect x="0" y="268" width="800" height="12" fill="#00ff44" opacity="0.05"/>
+  <text x="50" y="277" font-family="monospace" font-size="9" fill="#00ff44" opacity="0.3">~ ❯ ./toolsartoripy</text>
+  <text x="400" y="277" font-family="monospace" font-size="9" fill="#00ff44" text-anchor="middle" opacity="0.3">MIT License · @devsart95</text>
+  <text x="720" y="277" font-family="monospace" font-size="9" fill="#00ff44" opacity="0.3">_</text>
+
+  <!-- Blinking cursor -->
+  <text x="750" y="105" font-family="monospace" font-size="58" fill="#00ff44" opacity="0.7">
+    |
+    <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite"/>
+  </text>
+
+  <!-- Random data particles -->
+  <g font-family="monospace" font-size="8" fill="#00ff44" opacity="0.15">
+    <text x="120" y="220">0x7F3A</text>
+    <text x="580" y="230">0xBEEF</text>
+    <text x="320" y="240">0xCAFE</text>
+    <text x="650" y="215">0xDEAD</text>
+    <text x="180" y="235">0xCODE</text>
+  </g>
+
+  <!-- Tiny dots -->
+  <g fill="#00ff44">
+    <circle cx="100" cy="200" r="1.5" opacity="0.2"/>
+    <circle cx="250" cy="220" r="1.5" opacity="0.15"/>
+    <circle cx="550" cy="210" r="1.5" opacity="0.2"/>
+    <circle cx="700" cy="195" r="1.5" opacity="0.15"/>
+    <circle cx="350" cy="225" r="1" opacity="0.1"/>
+    <circle cx="450" cy="215" r="1" opacity="0.1"/>
+  </g>
+</svg>
