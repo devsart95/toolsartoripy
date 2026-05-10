@@ -1,0 +1,197 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" width="100%">
+  <defs>
+    <linearGradient id="g_cpu" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00ff44"/>
+      <stop offset="100%" style="stop-color:#00cc33"/>
+    </linearGradient>
+    <linearGradient id="g_warn" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ffcc00"/>
+      <stop offset="100%" style="stop-color:#ff9900"/>
+    </linearGradient>
+    <linearGradient id="g_mem" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00aaff"/>
+      <stop offset="100%" style="stop-color:#0055ff"/>
+    </linearGradient>
+    <linearGradient id="g_disk" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ffaa00"/>
+      <stop offset="100%" style="stop-color:#ff6600"/>
+    </linearGradient>
+    <linearGradient id="g_net_up" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00ddcc"/>
+      <stop offset="100%" style="stop-color:#0099aa"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Window -->
+  <rect width="900" height="520" rx="12" fill="#0a0a0a"/>
+  <rect width="900" height="520" rx="12" fill="none" stroke="#222" stroke-width="1"/>
+
+  <!-- Title bar -->
+  <rect width="900" height="34" rx="12" fill="#161616"/>
+  <rect y="22" width="900" height="12" fill="#161616"/>
+  <line x1="0" y1="34" x2="900" y2="34" stroke="#222" stroke-width="1"/>
+
+  <!-- Traffic lights -->
+  <circle cx="20" cy="17" r="6.5" fill="#ff5f57"/>
+  <circle cx="41" cy="17" r="6.5" fill="#febc2e"/>
+  <circle cx="62" cy="17" r="6.5" fill="#28c840"/>
+
+  <text x="450" y="22" font-family="monospace" font-size="12" fill="#444" text-anchor="middle">python app.py — toolsartoripy</text>
+
+  <!-- Sidebar -->
+  <rect x="0" y="34" width="188" height="486" fill="#0d0d0d"/>
+  <line x1="188" y1="34" x2="188" y2="520" stroke="#1e1e1e" stroke-width="1"/>
+
+  <text x="12" y="57" font-family="monospace" font-size="10" fill="#00ff44" opacity="0.45" font-weight="bold">● DEVTOOLS</text>
+  <line x1="8" y1="64" x2="180" y2="64" stroke="#1e1e1e" stroke-width="1"/>
+
+  <!-- Selected tool -->
+  <rect x="0" y="66" width="188" height="28" fill="#0e1e0e"/>
+  <rect x="0" y="66" width="3" height="28" fill="#00ff44"/>
+  <text x="16" y="85" font-family="monospace" font-size="12" fill="#00ff44" font-weight="bold">⚡ SysGlitch</text>
+
+  <!-- Other tools -->
+  <text x="16" y="114" font-family="monospace" font-size="12" fill="#333">🔌 PortScan</text>
+  <text x="16" y="142" font-family="monospace" font-size="12" fill="#333">🎯 GitRadar</text>
+  <text x="16" y="170" font-family="monospace" font-size="12" fill="#333">🐳 DockerGlitch</text>
+  <text x="16" y="198" font-family="monospace" font-size="12" fill="#333">💾 DiskHeat</text>
+  <text x="16" y="226" font-family="monospace" font-size="12" fill="#333">🌐 NetWatch</text>
+  <text x="16" y="254" font-family="monospace" font-size="12" fill="#333">🔋 BatteryLog</text>
+  <text x="16" y="282" font-family="monospace" font-size="12" fill="#333">📡 WifiMap</text>
+  <text x="16" y="310" font-family="monospace" font-size="12" fill="#333">📋 ClipHistory</text>
+  <text x="16" y="338" font-family="monospace" font-size="12" fill="#333">📄 LogTail</text>
+
+  <line x1="8" y1="462" x2="180" y2="462" stroke="#1a1a1a" stroke-width="1"/>
+  <text x="12" y="479" font-family="monospace" font-size="9" fill="#252525">↑↓  navegar herramienta</text>
+  <text x="12" y="494" font-family="monospace" font-size="9" fill="#252525">1-0  salto directo · r  refresh</text>
+  <text x="12" y="509" font-family="monospace" font-size="9" fill="#252525">q   salir</text>
+
+  <!-- Content area -->
+  <rect x="188" y="34" width="712" height="486" fill="#080808"/>
+
+  <!-- Content header -->
+  <rect x="188" y="34" width="712" height="30" fill="#0f0f0f"/>
+  <line x1="188" y1="64" x2="900" y2="64" stroke="#1a1a1a" stroke-width="1"/>
+  <text x="204" y="54" font-family="monospace" font-size="13" fill="#00ff44" font-weight="bold">⚡  SysGlitch</text>
+  <text x="888" y="54" font-family="monospace" font-size="10" fill="#252525" text-anchor="end">macOS 14.6 · uptime 3d 14h · 15:42:07</text>
+
+  <!-- ── CPU PANEL x=196 y=68 w=346 h=192 ── -->
+  <rect x="196" y="68" width="346" height="192" rx="4" fill="#090909" stroke="#1a3a1a" stroke-width="1"/>
+  <text x="210" y="86" font-family="monospace" font-size="11" fill="#00ff44" font-weight="bold">⚡ CPU</text>
+  <line x1="196" y1="91" x2="542" y2="91" stroke="#1a3a1a" stroke-width="1"/>
+
+  <text x="208" y="108" font-family="monospace" font-size="10" fill="#00ccff">  TOTAL </text>
+  <rect x="268" y="98" width="190" height="11" rx="2" fill="#111"/>
+  <rect x="268" y="98" width="80" height="11" rx="2" fill="url(#g_cpu)"/>
+  <text x="464" y="108" font-family="monospace" font-size="10" fill="#00ff44"> 42%</text>
+
+  <!-- Core 0 / Core 4 -->
+  <text x="208" y="128" font-family="monospace" font-size="10" fill="#338833">  Core 0 </text>
+  <rect x="268" y="119" width="88" height="8" rx="1" fill="#111"/>
+  <rect x="268" y="119" width="61" height="8" rx="1" fill="url(#g_cpu)" opacity="0.85"/>
+  <text x="358" y="127" font-family="monospace" font-size="9" fill="#449944"> 70%</text>
+  <text x="398" y="128" font-family="monospace" font-size="10" fill="#338833">  Core 4 </text>
+  <rect x="458" y="119" width="72" height="8" rx="1" fill="#111"/>
+  <rect x="458" y="119" width="25" height="8" rx="1" fill="url(#g_cpu)" opacity="0.85"/>
+  <text x="532" y="127" font-family="monospace" font-size="9" fill="#449944"> 35%</text>
+
+  <!-- Core 1 / Core 5 -->
+  <text x="208" y="147" font-family="monospace" font-size="10" fill="#338833">  Core 1 </text>
+  <rect x="268" y="138" width="88" height="8" rx="1" fill="#111"/>
+  <rect x="268" y="138" width="22" height="8" rx="1" fill="url(#g_cpu)" opacity="0.85"/>
+  <text x="358" y="146" font-family="monospace" font-size="9" fill="#449944"> 25%</text>
+  <text x="398" y="147" font-family="monospace" font-size="10" fill="#338833">  Core 5 </text>
+  <rect x="458" y="138" width="72" height="8" rx="1" fill="#111"/>
+  <rect x="458" y="138" width="43" height="8" rx="1" fill="url(#g_cpu)" opacity="0.85"/>
+  <text x="532" y="146" font-family="monospace" font-size="9" fill="#449944"> 60%</text>
+
+  <!-- Core 2 / Core 6 -->
+  <text x="208" y="166" font-family="monospace" font-size="10" fill="#338833">  Core 2 </text>
+  <rect x="268" y="157" width="88" height="8" rx="1" fill="#111"/>
+  <rect x="268" y="157" width="39" height="8" rx="1" fill="url(#g_cpu)" opacity="0.85"/>
+  <text x="358" y="165" font-family="monospace" font-size="9" fill="#449944"> 44%</text>
+  <text x="398" y="166" font-family="monospace" font-size="10" fill="#338833">  Core 6 </text>
+  <rect x="458" y="157" width="72" height="8" rx="1" fill="#111"/>
+  <rect x="458" y="157" width="14" height="8" rx="1" fill="url(#g_cpu)" opacity="0.85"/>
+  <text x="532" y="165" font-family="monospace" font-size="9" fill="#449944"> 20%</text>
+
+  <!-- Core 3 (HIGH) / Core 7 -->
+  <text x="208" y="185" font-family="monospace" font-size="10" fill="#998833">  Core 3 </text>
+  <rect x="268" y="176" width="88" height="8" rx="1" fill="#111"/>
+  <rect x="268" y="176" width="70" height="8" rx="1" fill="url(#g_warn)" opacity="0.9"/>
+  <text x="358" y="184" font-family="monospace" font-size="9" fill="#ffcc00"> 80%</text>
+  <text x="398" y="185" font-family="monospace" font-size="10" fill="#338833">  Core 7 </text>
+  <rect x="458" y="176" width="72" height="8" rx="1" fill="#111"/>
+  <rect x="458" y="176" width="7" height="8" rx="1" fill="url(#g_cpu)" opacity="0.85"/>
+  <text x="532" y="184" font-family="monospace" font-size="9" fill="#449944">  9%</text>
+
+  <text x="208" y="248" font-family="monospace" font-size="9" fill="#224422">  Fisicos: 8 · Logicos: 8 · Apple M2 Pro</text>
+
+  <!-- ── RAM PANEL x=550 y=68 w=342 h=192 ── -->
+  <rect x="550" y="68" width="342" height="192" rx="4" fill="#090909" stroke="#1a1a3a" stroke-width="1"/>
+  <text x="564" y="86" font-family="monospace" font-size="11" fill="#00aaff" font-weight="bold">🧠 Memoria</text>
+  <line x1="550" y1="91" x2="892" y2="91" stroke="#1a1a3a" stroke-width="1"/>
+
+  <text x="562" y="108" font-family="monospace" font-size="10" fill="#0088cc">  RAM </text>
+  <rect x="602" y="98" width="194" height="11" rx="2" fill="#111"/>
+  <rect x="602" y="98" width="85" height="11" rx="2" fill="url(#g_mem)"/>
+  <text x="800" y="108" font-family="monospace" font-size="10" fill="#00aaff"> 44%</text>
+  <text x="562" y="124" font-family="monospace" font-size="9" fill="#3366aa">  14.2 / 32.0 GB</text>
+
+  <text x="562" y="145" font-family="monospace" font-size="10" fill="#224488">  Chrome Helper  22.4%  2.8 GB</text>
+  <text x="562" y="161" font-family="monospace" font-size="10" fill="#224488">  node           8.1%   1.0 GB</text>
+  <text x="562" y="177" font-family="monospace" font-size="10" fill="#224488">  Docker Desktop 4.2%   0.5 GB</text>
+  <text x="562" y="193" font-family="monospace" font-size="10" fill="#224488">  Xcode          3.8%   0.5 GB</text>
+  <text x="562" y="209" font-family="monospace" font-size="10" fill="#224488">  python3        2.1%   0.3 GB</text>
+  <text x="562" y="225" font-family="monospace" font-size="10" fill="#1a3366">  Mail           1.1%   0.1 GB</text>
+  <text x="562" y="241" font-family="monospace" font-size="10" fill="#1a3366">  Finder         0.9%   0.1 GB</text>
+
+  <!-- ── DISK PANEL x=196 y=268 w=346 h=138 ── -->
+  <rect x="196" y="268" width="346" height="138" rx="4" fill="#090909" stroke="#3a2800" stroke-width="1"/>
+  <text x="210" y="286" font-family="monospace" font-size="11" fill="#ffaa00" font-weight="bold">💾 Disco</text>
+  <line x1="196" y1="291" x2="542" y2="291" stroke="#3a2800" stroke-width="1"/>
+
+  <text x="208" y="308" font-family="monospace" font-size="10" fill="#cc8800">  /</text>
+  <rect x="226" y="298" width="210" height="11" rx="2" fill="#111"/>
+  <rect x="226" y="298" width="147" height="11" rx="2" fill="url(#g_disk)" opacity="0.9"/>
+  <text x="440" y="308" font-family="monospace" font-size="10" fill="#ffaa00"> 70%</text>
+  <text x="208" y="324" font-family="monospace" font-size="9" fill="#664400">  351 GB / 500 GB</text>
+  <text x="208" y="346" font-family="monospace" font-size="9" fill="#443300">  Read  total:  1.8 TB</text>
+  <text x="208" y="362" font-family="monospace" font-size="9" fill="#443300">  Write total:  0.9 TB</text>
+
+  <!-- ── NET PANEL x=550 y=268 w=342 h=138 ── -->
+  <rect x="550" y="268" width="342" height="138" rx="4" fill="#090909" stroke="#003a3a" stroke-width="1"/>
+  <text x="564" y="286" font-family="monospace" font-size="11" fill="#00ddcc" font-weight="bold">🌐 Red</text>
+  <line x1="550" y1="291" x2="892" y2="291" stroke="#003a3a" stroke-width="1"/>
+
+  <text x="562" y="310" font-family="monospace" font-size="10" fill="#008899">  en0</text>
+  <text x="598" y="310" font-family="monospace" font-size="10" fill="#00ddcc">  ↑ 2.4 MB/s</text>
+  <text x="714" y="310" font-family="monospace" font-size="10" fill="#00ddcc">  ↓ 8.1 MB/s</text>
+  <text x="562" y="328" font-family="monospace" font-size="10" fill="#005566">  lo0</text>
+  <text x="598" y="328" font-family="monospace" font-size="10" fill="#004455">  ↑ 0.0 MB/s</text>
+  <text x="714" y="328" font-family="monospace" font-size="10" fill="#004455">  ↓ 0.0 MB/s</text>
+  <text x="562" y="350" font-family="monospace" font-size="9" fill="#226688">  Enviado:   48.2 GB</text>
+  <text x="562" y="366" font-family="monospace" font-size="9" fill="#226688">  Recibido: 182.7 GB</text>
+
+  <!-- ── PROCESSES PANEL x=196 y=414 w=696 h=84 ── -->
+  <rect x="196" y="414" width="696" height="84" rx="4" fill="#090909" stroke="#2a102a" stroke-width="1"/>
+  <text x="210" y="432" font-family="monospace" font-size="11" fill="#cc44cc" font-weight="bold">🔥 Procesos</text>
+  <line x1="196" y1="437" x2="892" y2="437" stroke="#2a102a" stroke-width="1"/>
+
+  <text x="208" y="454" font-family="monospace" font-size="10" fill="#884488">  Chrome Helper  89.2%</text>
+  <text x="380" y="454" font-family="monospace" font-size="10" fill="#774477">  python3   4.1%</text>
+  <text x="520" y="454" font-family="monospace" font-size="10" fill="#663366">  node      2.8%</text>
+  <text x="660" y="454" font-family="monospace" font-size="10" fill="#552255">  Xcode    1.2%</text>
+  <text x="208" y="471" font-family="monospace" font-size="10" fill="#663366">  WindowServer    0.9%</text>
+  <text x="380" y="471" font-family="monospace" font-size="10" fill="#552255">  Dock      0.4%</text>
+  <text x="520" y="471" font-family="monospace" font-size="10" fill="#442244">  Finder    0.3%</text>
+  <text x="660" y="471" font-family="monospace" font-size="10" fill="#331133">  Mail     0.1%</text>
+  <text x="208" y="488" font-family="monospace" font-size="10" fill="#441144">  Slack     0.1%</text>
+  <text x="380" y="488" font-family="monospace" font-size="10" fill="#331133">  iTerm2    0.0%</text>
+
+  <!-- Status bar -->
+  <rect x="188" y="504" width="712" height="16" fill="#0c0c0c"/>
+  <line x1="188" y1="504" x2="900" y2="504" stroke="#1a1a1a" stroke-width="1"/>
+  <text x="200" y="516" font-family="monospace" font-size="9" fill="#282828">r → refrescar  ·  1 SysGlitch  2 PortScan  3 GitRadar  4 DockerGlitch  ·  q → salir</text>
+  <text x="888" y="516" font-family="monospace" font-size="9" fill="#282828" text-anchor="end">v1.0.0</text>
+</svg>
