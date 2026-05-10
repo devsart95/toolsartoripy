@@ -1,4 +1,5 @@
 """Helpers compartidos entre todas las vistas."""
+import logging
 import re
 import subprocess
 from typing import Optional, NamedTuple
@@ -6,6 +7,9 @@ from typing import Optional, NamedTuple
 from rich.text import Text
 from textual.widget import Widget
 from textual.widgets import ContentSwitcher
+
+logger = logging.getLogger(__name__)
+_net_connections_error = ""
 
 
 # ── conexiones de red sin sudo ────────────────────────────────────────────────
@@ -50,11 +54,18 @@ def net_connections() -> list[_Conn]:
     Devuelve objetos compatibles con la interfaz de psutil connections:
     .laddr, .raddr, .status, .pid, .name
     """
+    global _net_connections_error
+    _net_connections_error = ""
     try:
         r = subprocess.run(
             ["lsof", "-i", "-n", "-P"],
             capture_output=True, text=True, timeout=10,
         )
+        if r.returncode != 0:
+            stderr = (r.stderr or "").strip()
+            _net_connections_error = stderr or f"lsof fallo con codigo {r.returncode}"
+            logger.warning("lsof failed: %s", _net_connections_error)
+            return []
         conns: list[_Conn] = []
         for line in r.stdout.splitlines()[1:]:   # skip header
             parts = line.split()
@@ -84,8 +95,26 @@ def net_connections() -> list[_Conn]:
                 conns.append(_Conn(laddr=laddr, raddr=raddr,
                                    status=state, pid=pid, name=cmd))
         return conns
-    except Exception:
+    except FileNotFoundError:
+        _net_connections_error = "comando no disponible: lsof"
+        logger.warning(_net_connections_error)
         return []
+    except subprocess.TimeoutExpired:
+        _net_connections_error = "timeout ejecutando lsof"
+        logger.warning(_net_connections_error)
+        return []
+    except PermissionError:
+        _net_connections_error = "sin permisos para ejecutar lsof"
+        logger.warning(_net_connections_error)
+        return []
+    except Exception:
+        _net_connections_error = "error inesperado ejecutando lsof"
+        logger.exception(_net_connections_error)
+        return []
+
+
+def net_connections_error() -> str:
+    return _net_connections_error
 
 
 def pct_bar(val: float, w: int = 26) -> Text:
@@ -126,5 +155,6 @@ def is_view_active(widget: Widget, view_id: str) -> bool:
         sw = widget.app.query_one("#switcher", ContentSwitcher)
         return sw.current == view_id
     except Exception:
+        logger.debug("No se pudo detectar vista activa; se asume activa", exc_info=True)
         # Antes de mount o si no esta en un switcher: tratar como activo
         return True
