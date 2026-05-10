@@ -1,52 +1,62 @@
-# ⚡ toolsartoripy
+<p align="center">
+  <img src="https://img.shields.io/badge/macOS-000?logo=apple&logoColor=white&style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Python_3.11+-3776AB?logo=python&logoColor=white&style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Textual-FF6B6B?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/license-MIT-22c55e?style=for-the-badge"/>
+</p>
 
-![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python)
-![macOS](https://img.shields.io/badge/macOS-000000?logo=apple)
-![Textual](https://img.shields.io/badge/Textual-8.0%2B-FF6B6B)
-![License](https://img.shields.io/badge/License-MIT-22c55e)
+<h1 align="center">⚡ toolsartoripy</h1>
+<p align="center"><b>10 herramientas TUI para macOS</b> — <i>todo en tu terminal, sin sudo</i></p>
 
-> **10 herramientas TUI para macOS** — monitor, puertos, Git, Docker, disco, red, batería, WiFi, clipboard y logs. Todo en tu terminal.
+<p align="center">
+  <code>git clone https://github.com/devsart95/toolsartoripy</code><br>
+  <code>cd toolsartoripy && pip install -r requirements.txt && python app.py</code>
+</p>
 
-```bash
-git clone https://github.com/devsart95/toolsartoripy
-cd toolsartoripy && pip install -r requirements.txt && python app.py
-```
+---
 
-## 🧰 Tools
+## 🧰 Herramientas
 
-| # | Tool | Qué hace |
-|---|------|----------|
-| ⚡ | SysGlitch | CPU, RAM, disco, red, procesos |
-| 🔌 | PortScan | Puertos activos sin sudo |
-| 🎯 | GitRadar | Estado de repos en ~/Devsar |
-| 🐳 | DockerGlitch | Contenedores en tiempo real |
-| 💾 | DiskHeat | Directorios pesados + caches |
-| 🌐 | NetWatch | Conexiones red con DNS |
-| 🔋 | BatteryLog | Salud de batería macOS |
-| 📡 | WifiMap | Redes WiFi cercanas |
-| 📋 | ClipHistory | Historial clipboard (opt-in) |
-| 📄 | LogTail | Logs del sistema |
+|   | Tool | Descripción |
+|---|------|-------------|
+| ⚡ | **SysGlitch** | CPU, RAM, disco, red y procesos en vivo |
+| 🔌 | **PortScan** | Puertos activos y conexiones sin sudo |
+| 🎯 | **GitRadar** | Dashboard de repos en ~/Devsar |
+| 🐳 | **DockerGlitch** | Contenedores Docker en tiempo real |
+| 💾 | **DiskHeat** | Directorios pesados y caches recuperables |
+| 🌐 | **NetWatch** | Conexiones de red + resolución DNS |
+| 🔋 | **BatteryLog** | Salud de batería (ciclos, capacidad, °C) |
+| 📡 | **WifiMap** | Redes WiFi cercanas y señal |
+| 📋 | **ClipHistory** | Historial de clipboard (opt-in, seguro) |
+| 📄 | **LogTail** | Logs del sistema y crash reports |
 
 ## ⌨️ Controles
 
 | Tecla | Acción |
 |-------|--------|
-| `↑↓` o click | Navegar sidebar |
-| `1`–`0` | Ir a herramienta |
-| `r` | Refrescar |
+| `↑` `↓` | Navegar sidebar |
+| `1` – `0` | Salto directo a tool |
+| `r` | Refrescar vista actual |
 | `q` | Salir |
 
-## 🏗 Stack
+## 📦 Stack
 
-[Textual](https://github.com/Textualize/textual) + [Rich](https://github.com/Textualize/rich) + [psutil](https://github.com/giampaolo/psutil) + comandos macOS (`lsof`, `ioreg`, `docker`, `git`...)
+`Textual` · `Rich` · `psutil` · `lsof` · `ioreg` · `system_profiler`
+
+> Tareas lentas (git, docker, disk walk) corren en `run_worker` — la UI nunca se congela.
+
+---
 
 ## ⚠️ Notas
 
-- `PortScan` / `NetWatch`: usan `lsof` (no requiere sudo)
-- `WifiMap`: fallback automático en macOS 14.4+ (airport removido)
-- `ClipHistory`: **desactivado por defecto** — activalo con el botón en la UI. Redacta automáticamente API keys, tokens y passwords
-- Algunas herramientas necesitan Full Disk Access o permisos de Localización
+🔹 **PortScan / NetWatch** — usan `lsof` en vez de `psutil.net_connections()` (requeriría sudo en macOS)  
+🔹 **WifiMap** — en macOS 14.4+ cae automáticamente a `system_profiler` (airport fue removido)  
+🔹 **ClipHistory** — 🛡️ **desactivado por defecto**. Activación manual + redacción automática de API keys, tokens y passwords  
+🔹 **BatteryLog** — maneja el cambio de API en macOS 13+  
+🔹 Algunas herramientas requieren **Full Disk Access** o permisos de **Localización**
 
-## 📄 License
+---
 
-MIT
+<p align="center">
+  <sub>MIT © 2026 · hecho con ☕ por <a href="https://github.com/devsart95">@devsart95</a></sub>
+</p>
