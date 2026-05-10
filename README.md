@@ -1,16 +1,12 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/macOS-000?logo=apple&logoColor=white&style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/Python_3.11+-3776AB?logo=python&logoColor=white&style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/Textual-FF6B6B?style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/license-MIT-22c55e?style=for-the-badge"/>
+  <img src="https://raw.githubusercontent.com/devsart95/toolsartoripy/main/banner.svg" alt="toolsartoripy" width="100%">
 </p>
 
-<h1 align="center">⚡ toolsartoripy</h1>
-<p align="center"><b>10 herramientas TUI para macOS</b> — <i>todo en tu terminal, sin sudo</i></p>
-
 <p align="center">
-  <code>git clone https://github.com/devsart95/toolsartoripy</code><br>
-  <code>cd toolsartoripy && pip install -r requirements.txt && python app.py</code>
+  <img src="https://img.shields.io/badge/Python_3.11%2B-3776AB?logo=python&logoColor=white&style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/macOS-000?logo=apple&logoColor=white&style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Textual-FF6B6B?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/license-MIT-22c55e?style=for-the-badge"/>
 </p>
 
 ---
