@@ -1,4 +1,5 @@
 """toolsartoripy — TUI DevTools para macOS."""
+import logging
 import sys
 from pathlib import Path
 
@@ -22,6 +23,8 @@ from screens.batterylog   import BatteryLogView
 from screens.wifimap      import WifiMapView
 from screens.cliphistory  import ClipHistoryView
 from screens.logtail      import LogTailView
+
+logger = logging.getLogger(__name__)
 
 TOOLS = [
     ("sysglitch",    "⚡", "SysGlitch",   "Monitor sistema"),
@@ -176,7 +179,7 @@ class DevToolsApp(App):
             view = self.query_one("#sysglitch", SysGlitchView)
             view.refresh_view()
         except Exception:
-            pass
+            logger.exception("No se pudo inicializar SysGlitch")
 
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         item = event.item
@@ -200,7 +203,7 @@ class DevToolsApp(App):
             if hasattr(view, "refresh_view"):
                 view.refresh_view()
         except Exception:
-            pass
+            logger.exception("No se pudo refrescar la vista %s", tool_id)
 
     def action_refresh(self) -> None:
         current = self.query_one("#switcher", ContentSwitcher).current
@@ -211,7 +214,7 @@ class DevToolsApp(App):
             if hasattr(widget, "refresh_view"):
                 widget.refresh_view()
         except Exception:
-            pass
+            logger.exception("No se pudo refrescar la vista actual %s", current)
 
 
 def main() -> None:

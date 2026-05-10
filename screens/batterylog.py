@@ -1,4 +1,5 @@
 """BatteryLog — Salud de bateria (macOS via ioreg)."""
+import logging
 import subprocess
 import re
 
@@ -10,13 +11,22 @@ from textual.containers import VerticalScroll
 
 from widgets.shared import pct_bar, is_view_active
 
+logger = logging.getLogger(__name__)
+_last_battery_error = ""
+
 
 def _ioreg() -> dict[str, str]:
+    global _last_battery_error
+    _last_battery_error = ""
     try:
         r = subprocess.run(
             ["ioreg", "-l", "-n", "AppleSmartBattery", "-r"],
             capture_output=True, text=True, timeout=5,
         )
+        if r.returncode != 0:
+            _last_battery_error = (r.stderr or "").strip() or f"ioreg fallo con codigo {r.returncode}"
+            logger.warning("ioreg failed: %s", _last_battery_error)
+            return {}
         # Solo lineas tipo: "Key" = value (single-line value, sin braces)
         result: dict[str, str] = {}
         for line in r.stdout.splitlines():
@@ -24,7 +34,21 @@ def _ioreg() -> dict[str, str]:
             if m:
                 result[m.group(1)] = m.group(2).strip()
         return result
+    except FileNotFoundError:
+        _last_battery_error = "comando no disponible: ioreg"
+        logger.warning(_last_battery_error)
+        return {}
+    except subprocess.TimeoutExpired:
+        _last_battery_error = "timeout consultando bateria"
+        logger.warning(_last_battery_error)
+        return {}
+    except PermissionError:
+        _last_battery_error = "sin permisos para consultar bateria"
+        logger.warning(_last_battery_error)
+        return {}
     except Exception:
+        _last_battery_error = "error inesperado consultando bateria"
+        logger.exception(_last_battery_error)
         return {}
 
 
@@ -38,8 +62,10 @@ def _to_signed64(n: int) -> int:
 def build_renderable():
     d = _ioreg()
     if not d:
+        detail = f"\n  {_last_battery_error}" if _last_battery_error else ""
         return Panel(
-            Text("  No se pudo leer informacion de bateria.\n  Solo disponible en MacBooks.", "yellow"),
+            Text("  No se pudo leer informacion de bateria.\n  Solo disponible en MacBooks."
+                 f"{detail}", "yellow"),
             title="[bold yellow] 🔋  BatteryLog [/]", border_style="yellow",
         )
 
@@ -158,4 +184,4 @@ class BatteryLogView(VerticalScroll):
         try:
             self.query_one("#bl_view", Static).update(build_renderable())
         except Exception:
-            pass
+            logger.exception("No se pudo actualizar BatteryLog")

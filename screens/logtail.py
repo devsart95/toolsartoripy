@@ -1,5 +1,6 @@
 """LogTail — Tail de logs del sistema macOS."""
 import datetime
+import logging
 import subprocess
 from pathlib import Path
 
@@ -12,6 +13,8 @@ from textual.containers import VerticalScroll
 
 from widgets.shared import is_view_active
 
+logger = logging.getLogger(__name__)
+_last_log_error = ""
 COMMON_LOGS = [
     Path("/var/log/system.log"),
     Path("/var/log/install.log"),
@@ -40,28 +43,68 @@ def _colorize_line(line: str) -> Text:
 
 
 def _tail_file(path: Path, lines: int = 30) -> list[str]:
+    global _last_log_error
     try:
         r = subprocess.run(
             ["tail", "-n", str(lines), str(path)],
             capture_output=True, text=True, timeout=3,
         )
+        if r.returncode != 0:
+            _last_log_error = (r.stderr or "").strip() or f"tail fallo con codigo {r.returncode}"
+            logger.warning("tail failed for %s: %s", path, _last_log_error)
+            return []
         return r.stdout.splitlines()
+    except FileNotFoundError:
+        _last_log_error = "comando no disponible: tail"
+        logger.warning(_last_log_error)
+        return []
+    except subprocess.TimeoutExpired:
+        _last_log_error = "timeout leyendo logs"
+        logger.warning(_last_log_error)
+        return []
+    except PermissionError:
+        _last_log_error = f"sin permisos para leer {path}"
+        logger.warning(_last_log_error)
+        return []
     except Exception:
+        _last_log_error = "error inesperado leyendo logs"
+        logger.exception(_last_log_error)
         return []
 
 
 def _unified_log(predicate: str, last: str = "5m") -> list[str]:
+    global _last_log_error
     try:
         r = subprocess.run(
             ["log", "show", "--predicate", predicate, "--last", last, "--style", "syslog"],
             capture_output=True, text=True, timeout=15,
         )
+        if r.returncode != 0:
+            _last_log_error = (r.stderr or "").strip() or f"log show fallo con codigo {r.returncode}"
+            logger.warning("log show failed: %s", _last_log_error)
+            return []
         return r.stdout.splitlines()[-30:]
+    except FileNotFoundError:
+        _last_log_error = "comando no disponible: log"
+        logger.warning(_last_log_error)
+        return []
+    except subprocess.TimeoutExpired:
+        _last_log_error = "timeout consultando unified log"
+        logger.warning(_last_log_error)
+        return []
+    except PermissionError:
+        _last_log_error = "sin permisos para consultar unified log"
+        logger.warning(_last_log_error)
+        return []
     except Exception:
+        _last_log_error = "error inesperado consultando unified log"
+        logger.exception(_last_log_error)
         return []
 
 
 def build_renderable():
+    global _last_log_error
+    _last_log_error = ""
     panels = []
 
     # Logs de archivos disponibles
@@ -118,9 +161,11 @@ def build_renderable():
                                 border_style="magenta", padding=(0, 1)))
 
     if not panels:
+        detail = f"\n  {_last_log_error}" if _last_log_error else ""
         return Panel(
             Text("  Sin logs disponibles o sin permisos para leerlos.\n"
-                 "  Algunos logs requieren Full Disk Access en Preferencias del Sistema.", "yellow"),
+                 "  Algunos logs requieren Full Disk Access en Preferencias del Sistema."
+                 f"{detail}", "yellow"),
             title="[bold yellow] 📋  LogTail [/]", border_style="yellow",
         )
 
@@ -156,4 +201,4 @@ class LogTailView(VerticalScroll):
         try:
             self.query_one("#lt_view", Static).update(rendered)
         except Exception:
-            pass
+            logger.exception("No se pudo actualizar LogTail")

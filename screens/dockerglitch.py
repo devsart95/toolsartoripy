@@ -1,5 +1,6 @@
 """DockerGlitch — Contenedores Docker en tiempo real."""
 import json
+import logging
 import subprocess
 
 from rich.console import Group
@@ -13,14 +14,21 @@ from textual.containers import VerticalScroll
 
 from widgets.shared import is_view_active
 
+logger = logging.getLogger(__name__)
+_last_docker_error = ""
+
 
 def _docker_ps() -> list[dict]:
+    global _last_docker_error
+    _last_docker_error = ""
     try:
         r = subprocess.run(
             ["docker", "ps", "-a", "--format", "{{json .}}"],
             capture_output=True, text=True, timeout=5,
         )
         if r.returncode != 0:
+            _last_docker_error = (r.stderr or "").strip() or f"docker ps fallo con codigo {r.returncode}"
+            logger.warning("docker ps failed: %s", _last_docker_error)
             return []
         out = []
         for line in r.stdout.strip().splitlines():
@@ -31,17 +39,30 @@ def _docker_ps() -> list[dict]:
             except json.JSONDecodeError:
                 continue
         return out
-    except (FileNotFoundError, subprocess.TimeoutExpired):
+    except FileNotFoundError:
+        _last_docker_error = "comando no disponible: docker"
+        logger.warning(_last_docker_error)
+        return []
+    except subprocess.TimeoutExpired:
+        _last_docker_error = "timeout consultando docker ps"
+        logger.warning(_last_docker_error)
+        return []
+    except PermissionError:
+        _last_docker_error = "sin permisos para consultar Docker"
+        logger.warning(_last_docker_error)
         return []
 
 
 def _docker_stats() -> dict[str, dict]:
+    global _last_docker_error
     try:
         r = subprocess.run(
             ["docker", "stats", "--no-stream", "--format", "{{json .}}"],
             capture_output=True, text=True, timeout=15,
         )
         if r.returncode != 0:
+            _last_docker_error = (r.stderr or "").strip() or f"docker stats fallo con codigo {r.returncode}"
+            logger.warning("docker stats failed: %s", _last_docker_error)
             return {}
         stats = {}
         for line in r.stdout.strip().splitlines():
@@ -52,7 +73,17 @@ def _docker_stats() -> dict[str, dict]:
             except json.JSONDecodeError:
                 continue
         return stats
-    except (FileNotFoundError, subprocess.TimeoutExpired):
+    except FileNotFoundError:
+        _last_docker_error = "comando no disponible: docker"
+        logger.warning(_last_docker_error)
+        return {}
+    except subprocess.TimeoutExpired:
+        _last_docker_error = "timeout consultando docker stats"
+        logger.warning(_last_docker_error)
+        return {}
+    except PermissionError:
+        _last_docker_error = "sin permisos para consultar Docker"
+        logger.warning(_last_docker_error)
         return {}
 
 
@@ -62,6 +93,8 @@ def build_renderable():
     if not containers:
         msg = Text()
         msg.append("\n  Docker no disponible o sin contenedores.\n", "yellow")
+        if _last_docker_error:
+            msg.append(f"  {_last_docker_error}\n", "bold red")
         msg.append("  Asegurate de que Docker Desktop este corriendo.", "dim white")
         return Panel(msg, title="[bold cyan] 🐳  DockerGlitch [/]", border_style="cyan")
 
@@ -143,4 +176,4 @@ class DockerGlitchView(VerticalScroll):
         try:
             self.query_one("#dg_view", Static).update(rendered)
         except Exception:
-            pass
+            logger.exception("No se pudo actualizar DockerGlitch")
