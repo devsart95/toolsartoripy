@@ -18,6 +18,7 @@ from widgets.shared import is_view_active
 
 logger = logging.getLogger(__name__)
 DEVSAR = Path.home() / "Devsar"
+_last_repo_error = ""
 
 
 @dataclass
@@ -57,15 +58,22 @@ def _git(cmd: list[str], cwd: Path) -> GitResult:
 
 
 def _repos() -> list[Path]:
+    global _last_repo_error
+    _last_repo_error = ""
     if not DEVSAR.exists():
+        _last_repo_error = f"Directorio no encontrado: {DEVSAR}"
         return []
     repos = []
     try:
         for d in sorted(DEVSAR.iterdir()):
             if d.is_dir() and (d / ".git").exists():
                 repos.append(d)
-    except (OSError, PermissionError):
-        logger.exception("No se pudieron listar repos en %s", DEVSAR)
+    except PermissionError:
+        _last_repo_error = f"sin permisos para leer {DEVSAR}"
+        logger.exception(_last_repo_error)
+    except OSError:
+        _last_repo_error = f"error de sistema al leer {DEVSAR}"
+        logger.exception(_last_repo_error)
     return repos
 
 
@@ -73,8 +81,11 @@ def build_renderable():
     repos = _repos()
 
     if not repos:
+        msg = Text(f"  No se encontraron repos git en {DEVSAR}", "yellow")
+        if _last_repo_error:
+            msg.append(f"\n  {_last_repo_error}", "bold red")
         return Panel(
-            Text(f"  No se encontraron repos git en {DEVSAR}", "yellow"),
+            msg,
             title="[bold green] 🎯  GitRadar [/]", border_style="green",
         )
 
