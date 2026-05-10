@@ -1,4 +1,5 @@
 """NetWatch — Conexiones de red activas con proceso y resolucion de hostname."""
+import logging
 import socket
 import threading
 from rich.console import Group
@@ -10,7 +11,9 @@ from textual.widgets import Static
 from textual.app import ComposeResult
 from textual.containers import VerticalScroll
 
-from widgets.shared import is_view_active, net_connections
+from widgets.shared import is_view_active, net_connections, net_connections_error
+
+logger = logging.getLogger(__name__)
 
 _PRIVATE = ("10.", "172.16.", "172.17.", "172.18.", "172.19.", "172.20.",
             "172.21.", "172.22.", "172.23.", "172.24.", "172.25.", "172.26.",
@@ -19,7 +22,9 @@ _PRIVATE = ("10.", "172.16.", "172.17.", "172.18.", "172.19.", "172.20.",
 
 _hostname_cache: dict[str, str] = {}
 _resolving: set[str] = set()
+_pending_resolve: set[str] = set()
 _cache_lock = threading.Lock()
+MAX_RESOLVE_BATCH = 12
 
 
 def _is_public(ip: str) -> bool:
@@ -39,24 +44,41 @@ def _resolve_async(ip: str) -> None:
         _resolving.discard(ip)
 
 
+def _take_pending_resolves(limit: int = MAX_RESOLVE_BATCH) -> list[str]:
+    with _cache_lock:
+        ips = sorted(_pending_resolve)[:limit]
+        for ip in ips:
+            _pending_resolve.discard(ip)
+            _resolving.add(ip)
+        return ips
+
+
+def _resolve_pending_batch() -> None:
+    for ip in _take_pending_resolves():
+        _resolve_async(ip)
+
+
 def _hostname(ip: str) -> str:
-    """Lookup no bloqueante: dispara resolve en background, retorna placeholder."""
+    """Lookup no bloqueante: agenda resolve en worker controlado."""
     with _cache_lock:
         if ip in _hostname_cache:
             return _hostname_cache[ip]
         if ip in _resolving:
             return "resolviendo…"
-        _resolving.add(ip)
-    threading.Thread(target=_resolve_async, args=(ip,), daemon=True).start()
-    return "resolviendo…"
+        _pending_resolve.add(ip)
+    return "pendiente…"
 
 
 def build_renderable():
     conns = net_connections()
 
     if not conns:
+        detail = net_connections_error()
+        text = "  Sin conexiones detectadas."
+        if detail:
+            text = f"  {detail}"
         return Panel(
-            Text("  Sin conexiones detectadas o lsof no disponible.", "yellow"),
+            Text(text, "yellow"),
             title="[bold magenta] 🌐  NetWatch [/]", border_style="magenta",
         )
 
@@ -129,5 +151,6 @@ class NetWatchView(VerticalScroll):
             return
         try:
             self.query_one("#nw_view", Static).update(build_renderable())
+            self.run_worker(_resolve_pending_batch, exclusive=True, thread=True)
         except Exception:
-            pass
+            logger.exception("No se pudo actualizar NetWatch")

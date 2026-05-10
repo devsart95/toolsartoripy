@@ -1,4 +1,5 @@
 """DiskHeat — Directorios mas pesados y caches recuperables."""
+import logging
 import os
 import time
 from pathlib import Path
@@ -14,6 +15,7 @@ from textual.containers import VerticalScroll
 
 from widgets.shared import human, is_view_active
 
+logger = logging.getLogger(__name__)
 SCAN_ROOTS = [Path.home() / "Devsar", Path.home() / "Downloads", Path.home() / "Desktop"]
 SKIP_DIRS  = {".git", "node_modules", ".next", "__pycache__", ".venv", "venv", ".cache",
               "Library", ".Trash", "vendor", "dist", "build", ".nuxt", ".turbo"}
@@ -32,13 +34,15 @@ def _dir_size(path: Path, max_depth: int = 2, depth: int = 0) -> int:
                         try:
                             total += entry.stat(follow_symlinks=False).st_size
                         except OSError:
-                            pass
+                            logger.debug("No se pudo leer tamano de %s", entry.path, exc_info=True)
                     elif entry.is_dir(follow_symlinks=False) and entry.name not in SKIP_DIRS and depth < max_depth:
                         total += _dir_size(Path(entry.path), max_depth, depth + 1)
                 except OSError:
                     continue
-    except (PermissionError, OSError):
-        pass
+    except PermissionError:
+        logger.warning("sin permisos para escanear %s", path)
+    except OSError:
+        logger.debug("No se pudo escanear %s", path, exc_info=True)
     return total
 
 
@@ -54,8 +58,10 @@ def _top_dirs(root: Path, limit: int = 12) -> list[tuple[Path, int]]:
                             results.append((Path(entry.path), size))
                 except OSError:
                     continue
-    except (PermissionError, OSError):
-        pass
+    except PermissionError:
+        logger.warning("sin permisos para escanear %s", root)
+    except OSError:
+        logger.debug("No se pudo escanear %s", root, exc_info=True)
     return sorted(results, key=lambda x: x[1], reverse=True)[:limit]
 
 
@@ -187,4 +193,4 @@ class DiskHeatView(VerticalScroll):
         try:
             self.query_one("#dh_view", Static).update(rendered)
         except Exception:
-            pass
+            logger.exception("No se pudo actualizar DiskHeat")

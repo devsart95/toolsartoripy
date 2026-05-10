@@ -1,4 +1,5 @@
 """SysGlitch — Monitor de sistema en tiempo real."""
+import logging
 import time
 import platform
 from datetime import timedelta, datetime
@@ -16,6 +17,7 @@ from textual.containers import VerticalScroll
 
 from widgets.shared import pct_bar, human, is_view_active
 
+logger = logging.getLogger(__name__)
 _net0 = None
 _net_t0 = None
 _APFS_NOISE = {
@@ -33,9 +35,12 @@ def _cpu() -> Panel:
     t.append("  TOTAL   ", "bold cyan"); t.append_text(pct_bar(total, 26)); t.append("\n\n")
     if cores:
         mid = (len(cores) + 1) // 2
-        for i, (lc, rc) in enumerate(zip(cores[:mid], cores[mid:])):
+        left = cores[:mid]
+        right = cores[mid:]
+        for i, lc in enumerate(left):
             t.append(f"  Core {i:<2} ", "dim cyan");        t.append_text(pct_bar(lc, 13))
-            t.append(f"   Core {i + mid:<2} ", "dim cyan"); t.append_text(pct_bar(rc, 13))
+            if i < len(right):
+                t.append(f"   Core {i + mid:<2} ", "dim cyan"); t.append_text(pct_bar(right[i], 13))
             t.append("\n")
     physical = psutil.cpu_count(logical=False) or 0
     logical  = psutil.cpu_count() or 0
@@ -58,7 +63,7 @@ def _mem() -> Panel:
         try:
             procs.append(p.info)
         except (psutil.NoSuchProcess, psutil.AccessDenied):
-            pass
+            logger.debug("No se pudo leer proceso para memoria", exc_info=True)
     procs.sort(key=lambda x: x.get("memory_percent") or 0, reverse=True)
     for p in procs[:7]:
         pct  = p.get("memory_percent") or 0.0
@@ -81,7 +86,8 @@ def _disk() -> Panel:
             t.append(f"  {part.mountpoint[:12]:<12} ", "bold cyan"); t.append_text(pct_bar(u.percent, 22))
             t.append(f"\n  {human(u.used)} / {human(u.total)}\n", "dim white")
             shown += 1
-        except Exception:
+        except (PermissionError, OSError):
+            logger.debug("No se pudo leer uso de disco en %s", part.mountpoint, exc_info=True)
             continue
     try:
         io = psutil.disk_io_counters()
@@ -89,7 +95,7 @@ def _disk() -> Panel:
             t.append(f"\n  Read  total: {human(io.read_bytes)}", "dim yellow")
             t.append(f"\n  Write total: {human(io.write_bytes)}", "dim yellow")
     except Exception:
-        pass
+        logger.exception("No se pudieron leer contadores de disco")
     return Panel(t, title="[bold yellow] 💾  Disco [/]", border_style="yellow", padding=(0, 1))
 
 
@@ -128,7 +134,7 @@ def _procs() -> Panel:
         try:
             procs.append(p.info)
         except (psutil.NoSuchProcess, psutil.AccessDenied):
-            pass
+            logger.debug("No se pudo leer proceso para CPU", exc_info=True)
     procs.sort(key=lambda x: x.get("cpu_percent") or 0, reverse=True)
     for p in procs[:12]:
         cpu = p.get("cpu_percent") or 0.0
@@ -147,6 +153,7 @@ def build_renderable():
         up_secs = int(time.time() - psutil.boot_time())
         up = str(timedelta(seconds=up_secs))
     except Exception:
+        logger.exception("No se pudo calcular uptime")
         up = "—"
     now = datetime.now().strftime("%H:%M:%S")
     header = Text()
@@ -184,4 +191,4 @@ class SysGlitchView(VerticalScroll):
         try:
             self.query_one("#sg_view", Static).update(build_renderable())
         except Exception:
-            pass
+            logger.exception("No se pudo actualizar SysGlitch")
