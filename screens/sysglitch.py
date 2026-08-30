@@ -2,6 +2,7 @@
 import logging
 import time
 import platform
+from collections import deque
 from datetime import timedelta, datetime
 
 import psutil
@@ -15,11 +16,16 @@ from textual.widgets import Static
 from textual.app import ComposeResult
 from textual.containers import VerticalScroll
 
-from widgets.shared import pct_bar, human, is_view_active
+from widgets.shared import pct_bar, pct_style, sparkline, human, is_view_active
 
 logger = logging.getLogger(__name__)
 _net0 = None
 _net_t0 = None
+HISTORY_LEN = 60
+_cpu_hist = deque(maxlen=HISTORY_LEN)
+_mem_hist = deque(maxlen=HISTORY_LEN)
+_tx_hist  = deque(maxlen=HISTORY_LEN)
+_rx_hist  = deque(maxlen=HISTORY_LEN)
 _APFS_NOISE = {
     "/System/Volumes/Data", "/System/Volumes/Preboot",
     "/System/Volumes/Recovery", "/System/Volumes/VM",
@@ -32,7 +38,11 @@ def _cpu() -> Panel:
     total = psutil.cpu_percent()
     cores = psutil.cpu_percent(percpu=True)
     t = Text()
-    t.append("  TOTAL   ", "bold cyan"); t.append_text(pct_bar(total, 26)); t.append("\n\n")
+    _cpu_hist.append(total)
+    t.append("  TOTAL   ", "bold cyan"); t.append_text(pct_bar(total, 26)); t.append("\n")
+    t.append("           ", "dim white")
+    t.append(sparkline(_cpu_hist, 26, lo=0.0, hi=100.0), pct_style(total))
+    t.append("\n\n")
     if cores:
         mid = (len(cores) + 1) // 2
         left = cores[:mid]
@@ -52,7 +62,10 @@ def _cpu() -> Panel:
 def _mem() -> Panel:
     m, s = psutil.virtual_memory(), psutil.swap_memory()
     t = Text()
+    _mem_hist.append(m.percent)
     t.append("  RAM    ", "bold cyan"); t.append_text(pct_bar(m.percent, 28))
+    t.append("\n         ", "dim white")
+    t.append(sparkline(_mem_hist, 28, lo=0.0, hi=100.0), pct_style(m.percent))
     t.append(f"\n  {human(m.used)} / {human(m.total)}", "dim white")
     t.append("   libre: ", "dim white"); t.append(human(m.available), "bold green")
     t.append("\n\n  SWAP   ", "bold cyan"); t.append_text(pct_bar(s.percent, 28))
@@ -110,12 +123,17 @@ def _net() -> Panel:
         tx_spd = max(0.0, (n.bytes_sent - prev_n.bytes_sent) / dt)
         rx_spd = max(0.0, (n.bytes_recv - prev_n.bytes_recv) / dt)
     _net0, _net_t0 = n, ts
+    if has_delta:
+        _tx_hist.append(tx_spd)
+        _rx_hist.append(rx_spd)
     spd = lambda v: f"{human(v)}/s" if has_delta else "    --"
     t = Text()
     t.append("  ↑ Enviado     ", "bold green"); t.append(f"{human(n.bytes_sent)}\n", "white")
     t.append("  ↓ Recibido    ", "bold cyan");  t.append(f"{human(n.bytes_recv)}\n", "white")
     t.append("\n  ↑ Velocidad   ", "green");     t.append(f"{spd(tx_spd)}\n", "bold yellow")
+    t.append("                ", "dim white");   t.append(f"{sparkline(_tx_hist, 24)}\n", "green")
     t.append("  ↓ Velocidad   ", "cyan");        t.append(f"{spd(rx_spd)}\n", "bold yellow")
+    t.append("                ", "dim white");   t.append(f"{sparkline(_rx_hist, 24)}\n", "cyan")
     err = sum(getattr(n, a, 0) for a in ("errin", "errout", "dropin", "dropout"))
     t.append("\n  Errores/drops ", "dim white"); t.append(str(err), "bold red" if err else "bold green")
     return Panel(t, title="[bold magenta] 🌐  Red [/]", border_style="magenta", padding=(0, 1))

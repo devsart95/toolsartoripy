@@ -117,15 +117,46 @@ def net_connections_error() -> str:
     return _net_connections_error
 
 
+_SPARK_BLOCKS = "▁▂▃▄▅▆▇█"
+
+
+def pct_style(val: float) -> str:
+    """Estilo Rich segun carga porcentual — criterio unico de toda la app."""
+    val = float(val or 0)
+    return "bold red" if val >= 80 else ("yellow" if val >= 55 else "bold green")
+
+
 def pct_bar(val: float, w: int = 26) -> Text:
     val    = max(0.0, min(100.0, float(val or 0)))
     filled = round(val / 100 * w)
-    color  = "bold red" if val >= 80 else ("yellow" if val >= 55 else "bold green")
+    color  = pct_style(val)
     t = Text()
     t.append("█" * filled,       style=color)
     t.append("░" * (w - filled), style="dim white")
     t.append(f" {val:5.1f}%",    style=color)
     return t
+
+
+def sparkline(data, w: int = 24, lo: Optional[float] = None,
+              hi: Optional[float] = None) -> str:
+    """Historial como bloques Unicode.
+
+    lo/hi fijan la escala (0-100 para porcentajes). Sin ellos la escala es
+    dinamica al min/max de la ventana — util para tasas, enganoso para
+    porcentajes casi planos, que se veria como una montana de ruido.
+    """
+    pts = list(data)[-w:]
+    if not pts:
+        return " " * w
+    bottom = min(pts) if lo is None else lo
+    top    = max(pts) if hi is None else hi
+    rng    = (top - bottom) or 1.0
+    out = []
+    for v in pts:
+        norm = (float(v) - bottom) / rng
+        idx  = int(max(0.0, min(1.0, norm)) * (len(_SPARK_BLOCKS) - 1))
+        out.append(_SPARK_BLOCKS[idx])
+    return "".join(out).rjust(w)
 
 
 def human(n: float) -> str:

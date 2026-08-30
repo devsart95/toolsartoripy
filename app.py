@@ -23,6 +23,7 @@ from screens.batterylog   import BatteryLogView
 from screens.wifimap      import WifiMapView
 from screens.cliphistory  import ClipHistoryView
 from screens.logtail      import LogTailView
+from screens.matrixrain    import MatrixRainView
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,7 @@ TOOLS = [
     ("wifimap",      "📡", "WifiMap",     "Redes WiFi"),
     ("cliphistory",  "📋", "ClipHistory", "Historial clipboard"),
     ("logtail",      "📄", "LogTail",     "Logs del sistema"),
+    ("matrixrain",   "🌧", "MatrixRain",  "Lluvia digital"),
 ]
 
 CSS = """
@@ -145,6 +147,7 @@ class DevToolsApp(App):
         Binding("8",      "goto('wifimap')",      "WifiMap",     show=False),
         Binding("9",      "goto('cliphistory')",  "Clips",       show=False),
         Binding("0",      "goto('logtail')",      "Logs",        show=False),
+        Binding("m",      "goto('matrixrain')",   "MatrixRain",  show=False),
     ]
 
     def compose(self) -> ComposeResult:
@@ -167,6 +170,7 @@ class DevToolsApp(App):
                     yield WifiMapView(id="wifimap")
                     yield ClipHistoryView(id="cliphistory")
                     yield LogTailView(id="logtail")
+                    yield MatrixRainView(id="matrixrain")
         yield Footer()
 
     def on_mount(self) -> None:

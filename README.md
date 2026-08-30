@@ -38,7 +38,7 @@ python app.py
 
 |   | Tool | Descripción |
 |---|------|-------------|
-| ⚡ | **SysGlitch** | CPU por core, RAM + procesos, disco, red en vivo |
+| ⚡ | **SysGlitch** | CPU por core, RAM + procesos, disco, red en vivo — con sparklines de los últimos 60 s |
 | 🔌 | **PortScan** | Puertos activos y conexiones sin `sudo` |
 | 🎯 | **GitRadar** | Dashboard de todos los repos en `~/Devsar` |
 | 🐳 | **DockerGlitch** | Contenedores Docker en tiempo real |
@@ -48,6 +48,7 @@ python app.py
 | 📡 | **WifiMap** | Redes WiFi cercanas con señal y canal |
 | 📋 | **ClipHistory** | Historial de clipboard — opt-in, redacción automática |
 | 📄 | **LogTail** | Logs del sistema y crash reports |
+| 🌧 | **MatrixRain** | Lluvia digital — se adapta al tamaño de la ventana |
 
 ---
 
@@ -57,6 +58,7 @@ python app.py
 |-------|--------|
 | `↑` `↓` | Navegar sidebar |
 | `1` – `0` | Salto directo a herramienta |
+| `m` | MatrixRain |
 | `r` | Refrescar vista actual |
 | `q` | Salir |
 
@@ -83,6 +85,7 @@ python app.py
 🔹 **WifiMap** — en macOS 14.4+ cae automáticamente a `system_profiler` (el binario `airport` fue removido)  
 🔹 **ClipHistory** — 🛡️ **desactivado por defecto**. Activación manual + redacción automática de API keys, tokens y passwords  
 🔹 **BatteryLog** — compatible con el cambio de API en macOS 13+  
+🔹 **MatrixRain** — se pausa sola al cambiar de vista; no gasta CPU en segundo plano  
 🔹 Algunas herramientas requieren **Full Disk Access** o permisos de **Localización**
 
 ---
