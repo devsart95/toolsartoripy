@@ -1,0 +1,11 @@
+target-version = "py311"
+line-length = 120
+
+[lint]
+select = ["F", "E", "W", "UP", "B", "SIM", "C4", "RUF"]
+ignore = [
+    "E501",    # el largo lo controla line-length, no el linter
+    "E701",    # dos sentencias en una linea: usado a proposito en los render
+    "E702",
+    "RUF012",  # BINDINGS/CSS de Textual son mutables por diseno del framework
+]

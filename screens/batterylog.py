@@ -141,9 +141,7 @@ def build_renderable():
     ]
     for label, value in rows:
         t.append(f"  {label:<20} ", "dim white")
-        if "Ciclos" in label and cycle_count > 800:
-            t.append(value + "\n", "bold red")
-        elif "Temperatura" in label and temp_c > 40:
+        if ("Ciclos" in label and cycle_count > 800) or ("Temperatura" in label and temp_c > 40):
             t.append(value + "\n", "bold red")
         else:
             t.append(value + "\n", "white")

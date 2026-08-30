@@ -88,7 +88,6 @@ def _scan_airport() -> list[dict]:
         rssi_at = header.find("RSSI")
         channel_at = header.find("CHANNEL")
         ht_at = header.find("HT")
-        cc_at = header.find("CC")
         security_at = header.find("SECURITY")
         if min(bssid_at, rssi_at, channel_at, security_at) < 0:
             _last_scan_error = "formato inesperado de airport -s"

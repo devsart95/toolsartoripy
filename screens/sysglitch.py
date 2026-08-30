@@ -126,7 +126,9 @@ def _net() -> Panel:
     if has_delta:
         _tx_hist.append(tx_spd)
         _rx_hist.append(rx_spd)
-    spd = lambda v: f"{human(v)}/s" if has_delta else "    --"
+    def spd(v: float) -> str:
+        return f"{human(v)}/s" if has_delta else "    --"
+
     t = Text()
     t.append("  ↑ Enviado     ", "bold green"); t.append(f"{human(n.bytes_sent)}\n", "white")
     t.append("  ↓ Recibido    ", "bold cyan");  t.append(f"{human(n.bytes_recv)}\n", "white")

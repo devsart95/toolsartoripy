@@ -13,10 +13,10 @@ from textual.widgets import Static
 from textual.app import ComposeResult
 from textual.containers import VerticalScroll
 
+from config import code_dir, scan_roots
 from widgets.shared import human, is_view_active
 
 logger = logging.getLogger(__name__)
-SCAN_ROOTS = [Path.home() / "Devsar", Path.home() / "Downloads", Path.home() / "Desktop"]
 SKIP_DIRS  = {".git", "node_modules", ".next", "__pycache__", ".venv", "venv", ".cache",
               "Library", ".Trash", "vendor", "dist", "build", ".nuxt", ".turbo"}
 MAX_RGLOB_DEPTH = 3   # limite para escanear caches sin perderse en el FS
@@ -97,7 +97,7 @@ def _find_named_dirs(root: Path, name: str, max_depth: int = MAX_RGLOB_DEPTH) ->
 
 
 def _heavy_cache_dirs() -> list[tuple[str, int]]:
-    devsar = Path.home() / "Devsar"
+    devsar = code_dir()
     found: list[tuple[str, int]] = []
 
     if devsar.exists():
@@ -117,7 +117,7 @@ def _heavy_cache_dirs() -> list[tuple[str, int]]:
 def build_renderable():
     panels = []
 
-    for root in SCAN_ROOTS:
+    for root in scan_roots():
         if not root.exists():
             continue
         dirs = _top_dirs(root)

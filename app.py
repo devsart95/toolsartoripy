@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 TOOLS = [
     ("sysglitch",    "⚡", "SysGlitch",   "Monitor sistema"),
     ("portscanner",  "🔌", "PortScan",    "Puertos activos"),
-    ("gitradar",     "🎯", "GitRadar",    "Repos Devsar"),
+    ("gitradar",     "🎯", "GitRadar",    "Estado de repos"),
     ("dockerglitch", "🐳", "Docker",      "Contenedores"),
     ("diskheat",     "🔥", "DiskHeat",    "Uso de disco"),
     ("netwatch",     "🌐", "NetWatch",    "Conexiones red"),
@@ -158,19 +158,18 @@ class DevToolsApp(App):
                     *[ToolItem(tid, icon, name, desc) for tid, icon, name, desc in TOOLS],
                     id="tool_list",
                 )
-            with Vertical(id="content"):
-                with ContentSwitcher(initial="sysglitch", id="switcher"):
-                    yield SysGlitchView(id="sysglitch")
-                    yield PortScanView(id="portscanner")
-                    yield GitRadarView(id="gitradar")
-                    yield DockerGlitchView(id="dockerglitch")
-                    yield DiskHeatView(id="diskheat")
-                    yield NetWatchView(id="netwatch")
-                    yield BatteryLogView(id="batterylog")
-                    yield WifiMapView(id="wifimap")
-                    yield ClipHistoryView(id="cliphistory")
-                    yield LogTailView(id="logtail")
-                    yield MatrixRainView(id="matrixrain")
+            with Vertical(id="content"), ContentSwitcher(initial="sysglitch", id="switcher"):
+                yield SysGlitchView(id="sysglitch")
+                yield PortScanView(id="portscanner")
+                yield GitRadarView(id="gitradar")
+                yield DockerGlitchView(id="dockerglitch")
+                yield DiskHeatView(id="diskheat")
+                yield NetWatchView(id="netwatch")
+                yield BatteryLogView(id="batterylog")
+                yield WifiMapView(id="wifimap")
+                yield ClipHistoryView(id="cliphistory")
+                yield LogTailView(id="logtail")
+                yield MatrixRainView(id="matrixrain")
         yield Footer()
 
     def on_mount(self) -> None:

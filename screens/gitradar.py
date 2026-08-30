@@ -1,4 +1,4 @@
-"""GitRadar — Estado de todos los repos en ~/Devsar/."""
+"""GitRadar — Estado de todos los repos del directorio de código."""
 import logging
 import subprocess
 import time
@@ -14,10 +14,10 @@ from textual.widgets import Static
 from textual.app import ComposeResult
 from textual.containers import VerticalScroll
 
+from config import code_dir
 from widgets.shared import is_view_active
 
 logger = logging.getLogger(__name__)
-DEVSAR = Path.home() / "Devsar"
 _last_repo_error = ""
 
 
@@ -31,7 +31,7 @@ class GitResult:
 def _git(cmd: list[str], cwd: Path) -> GitResult:
     try:
         r = subprocess.run(
-            ["git"] + cmd, cwd=str(cwd),
+            ["git", *cmd], cwd=str(cwd),
             capture_output=True, text=True, timeout=5,
         )
         if r.returncode != 0:
@@ -60,19 +60,19 @@ def _git(cmd: list[str], cwd: Path) -> GitResult:
 def _repos() -> list[Path]:
     global _last_repo_error
     _last_repo_error = ""
-    if not DEVSAR.exists():
-        _last_repo_error = f"Directorio no encontrado: {DEVSAR}"
+    if not code_dir().exists():
+        _last_repo_error = f"Directorio no encontrado: {code_dir()}"
         return []
     repos = []
     try:
-        for d in sorted(DEVSAR.iterdir()):
+        for d in sorted(code_dir().iterdir()):
             if d.is_dir() and (d / ".git").exists():
                 repos.append(d)
     except PermissionError:
-        _last_repo_error = f"sin permisos para leer {DEVSAR}"
+        _last_repo_error = f"sin permisos para leer {code_dir()}"
         logger.exception(_last_repo_error)
     except OSError:
-        _last_repo_error = f"error de sistema al leer {DEVSAR}"
+        _last_repo_error = f"error de sistema al leer {code_dir()}"
         logger.exception(_last_repo_error)
     return repos
 
@@ -81,7 +81,7 @@ def build_renderable():
     repos = _repos()
 
     if not repos:
-        msg = Text(f"  No se encontraron repos git en {DEVSAR}", "yellow")
+        msg = Text(f"  No se encontraron repos git en {code_dir()}", "yellow")
         if _last_repo_error:
             msg.append(f"\n  {_last_repo_error}", "bold red")
         return Panel(
@@ -104,7 +104,7 @@ def build_renderable():
         status_result = _git(["status", "--porcelain"], repo)
         branch = branch_result.stdout or "?"
         status_ok = status_result.ok
-        n_dirty = len([l for l in status_result.stdout.splitlines() if l.strip()]) if status_ok else 0
+        n_dirty = len([ln for ln in status_result.stdout.splitlines() if ln.strip()]) if status_ok else 0
         if status_ok and n_dirty == 0:
             clean_count += 1
         elif not status_ok:
@@ -165,7 +165,7 @@ def build_renderable():
 
     summary = Text()
     summary.append(f"  {len(repos)} repos en ", "dim white")
-    summary.append(str(DEVSAR), "dim cyan")
+    summary.append(str(code_dir()), "dim cyan")
     summary.append(f"   ·   {clean_count} limpios", "bold green")
     dirty_total = len(repos) - clean_count - error_count
     summary.append(f"   ·   {dirty_total} con cambios",

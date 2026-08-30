@@ -31,7 +31,7 @@ _TAIL  = [Style(color=c) for c in (
 class _Drop:
     """Una columna de lluvia."""
 
-    __slots__ = ("x", "y", "speed", "length", "chars")
+    __slots__ = ("chars", "length", "speed", "x", "y")
 
     def __init__(self, x: int, height: int, stagger: bool = False) -> None:
         self.x = x

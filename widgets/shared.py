@@ -2,7 +2,7 @@
 import logging
 import re
 import subprocess
-from typing import Optional, NamedTuple
+from typing import NamedTuple
 
 from rich.text import Text
 from textual.widget import Widget
@@ -20,10 +20,10 @@ class _Addr(NamedTuple):
 
 
 class _Conn:
-    __slots__ = ("laddr", "raddr", "status", "pid", "name")
+    __slots__ = ("laddr", "name", "pid", "raddr", "status")
 
-    def __init__(self, laddr: Optional[_Addr], raddr: Optional[_Addr],
-                 status: str, pid: Optional[int], name: str = ""):
+    def __init__(self, laddr: _Addr | None, raddr: _Addr | None,
+                 status: str, pid: int | None, name: str = ""):
         self.laddr  = laddr
         self.raddr  = raddr
         self.status = status
@@ -31,7 +31,7 @@ class _Conn:
         self.name   = name   # comando (COMMAND column de lsof)
 
 
-def _parse_addr(s: str) -> Optional[_Addr]:
+def _parse_addr(s: str) -> _Addr | None:
     s = s.strip()
     if not s or s == "*":
         return None
@@ -73,7 +73,7 @@ def net_connections() -> list[_Conn]:
                 continue
             cmd = parts[0]
             try:
-                pid: Optional[int] = int(parts[1])
+                pid: int | None = int(parts[1])
             except ValueError:
                 pid = None
 
@@ -137,8 +137,8 @@ def pct_bar(val: float, w: int = 26) -> Text:
     return t
 
 
-def sparkline(data, w: int = 24, lo: Optional[float] = None,
-              hi: Optional[float] = None) -> str:
+def sparkline(data, w: int = 24, lo: float | None = None,
+              hi: float | None = None) -> str:
     """Historial como bloques Unicode.
 
     lo/hi fijan la escala (0-100 para porcentajes). Sin ellos la escala es
